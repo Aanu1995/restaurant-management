@@ -2,12 +2,11 @@ package models
 
 import "go.mongodb.org/mongo-driver/bson/primitive"
 
-
-type Order struct{
+type Note struct{
 	ID 							primitive.ObjectID		`bson:"_id"`
-	OrderId					string								`json:"orderId"`
-	TableId					string								`json:"tableId" validate:"required"`
-	OrderDate 			string								`json:"orderDate" validate:"required"`
+	NoteId					string								`json:"noteId"`
+	Title						string								`json:"title"`
+	Description			string								`json:"description"`
 	CreatedAt 			string								`json:"createdAt"`
 	UpdatedAt 			string								`json:"updatedAt"`
 }
