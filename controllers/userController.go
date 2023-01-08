@@ -76,12 +76,11 @@ func GetUsers(ctx *gin.Context){
 	// get user with userId
 	users, err2 := services.GetUsers(recordPerPage, page)
 	if err2 != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err2.Error()})
 		return
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{"data": users, "nextPage": page + 1})
-
 }
 
 

@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/Aanu1995/restaurant-management/models"
 	"github.com/Aanu1995/restaurant-management/services"
@@ -22,7 +23,23 @@ func GetFood(ctx *gin.Context){
 }
 
 func GetFoods(ctx *gin.Context){
+	recordPerPage, err := strconv.Atoi(ctx.Query("recordPerPage"))
+	if err != nil || recordPerPage < 1 {
+		recordPerPage = 20
+	}
 
+	page, err1 := strconv.Atoi(ctx.Query("page"))
+	if err1 != nil || page < 1 {
+		page = 1
+	}
+
+	foods, err2 := services.GetFoods(recordPerPage, page)
+	if err2 != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err2.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"data": foods, "nextPage": page + 1})
 }
 
 
@@ -46,10 +63,24 @@ func CreateFood(ctx *gin.Context){
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"data": newFood})
+	ctx.JSON(http.StatusCreated, gin.H{"data": newFood})
 }
 
 
 func UpdateFood(ctx *gin.Context){
-	
+	foodId := ctx.Param("foodId")
+
+	var food models.Food
+	if err := ctx.BindJSON(&food); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	newFood, err := services.UpdateFood(foodId, food)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"data": newFood})
 }

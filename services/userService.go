@@ -18,7 +18,6 @@ import (
 var userCollection *mongo.Collection = database.OpenCollection("Users")
 
 
-
 func GetUser(userId string) (user models.User, err error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10 * time.Second)
 	defer cancel()
@@ -70,22 +69,22 @@ func CreateUser(requestBody models.User) (err error) {
 	var user models.User = requestBody
 
 	// check if user with email exists
-	if emailExists := userWithEmailExists(user.Email); emailExists {
+	if emailExists := userWithEmailExists(*user.Email); emailExists {
 		err = errors.New("User with this email or phone already exists")
 		return
 	}
 
 	// check if user with phone exists
-	if phoneExists := userWithPhoneExists(user.Phone); phoneExists {
+	if phoneExists := userWithPhoneExists(*user.Phone); phoneExists {
 		err = errors.New("User with this email or phone already exists")
 		return
 	}
 
 	// hash the password
-	hashPassword := helpers.Hashpassword(user.Password)
+	hashPassword := helpers.Hashpassword(*user.Password)
 	createdAt := time.Now().UTC().Format(time.RFC3339)
 
-	user.Password = hashPassword
+	user.Password = &hashPassword
 	user.CreatedAt = createdAt
 	user.UpdatedAt = createdAt
 	user.ID = primitive.NewObjectID()
@@ -98,8 +97,8 @@ func CreateUser(requestBody models.User) (err error) {
 		return
 	}
 
-	user.AccessToken = accessToken
-	user.RefreshToken = refreshToken
+	user.AccessToken = &accessToken
+	user.RefreshToken = &refreshToken
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10 * time.Second)
 	defer cancel()
@@ -111,7 +110,7 @@ func CreateUser(requestBody models.User) (err error) {
 
 func Login(requestBody models.User) (user models.User, err error){
 	// Get the data of the user with the email provided
-	user, err = GetUserWithEmail(requestBody.Email)
+	user, err = GetUserWithEmail(*requestBody.Email)
 	if err != nil {
 		err = errors.New("Incorrect email or password")
 		return
@@ -119,7 +118,7 @@ func Login(requestBody models.User) (user models.User, err error){
 
 	// Verify if the user password in database is the same as the password
 	// supplied by the user
-	passwordIsValid := helpers.VerifyPassword(user.Password, user.Password)
+	passwordIsValid := helpers.VerifyPassword(*user.Password, *user.Password)
 	if !passwordIsValid {
 		err = errors.New("Incorrect email or password")
 		return
@@ -179,8 +178,8 @@ func generateAndUpdateUserTokens(user *models.User) (err error) {
 		return
 	}
 
-	user.AccessToken = accessToken
-	user.RefreshToken = refreshToken
+	user.AccessToken = &accessToken
+	user.RefreshToken = &refreshToken
 	user.UpdatedAt = updatedAt
 
 	return

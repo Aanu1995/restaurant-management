@@ -22,9 +22,9 @@ var secretkey = os.Getenv("SECRET_KEY")
 
 func GenerateTokens(user models.User) (accessToken string, refreshToken string, err error){
 	claims := SignedDetails{
-		Email: user.Email,
-		FirstName: user.FirstName,
-		LastName: user.LastName,
+		Email: *user.Email,
+		FirstName: *user.FirstName,
+		LastName: *user.LastName,
 		UserId: user.UserId,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
