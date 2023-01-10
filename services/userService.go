@@ -68,14 +68,8 @@ func GetUserWithEmail(email string) (user models.User, err error) {
 func CreateUser(requestBody models.User) (err error) {
 	var user models.User = requestBody
 
-	// check if user with email exists
-	if emailExists := userWithEmailExists(*user.Email); emailExists {
-		err = errors.New("User with this email or phone already exists")
-		return
-	}
-
-	// check if user with phone exists
-	if phoneExists := userWithPhoneExists(*user.Phone); phoneExists {
+	// check if user with email or phone exists
+	if userExists := userWithEmailOrPhoneExists(*user.Email, *user.Phone); userExists {
 		err = errors.New("User with this email or phone already exists")
 		return
 	}
@@ -140,13 +134,20 @@ func Login(requestBody models.User) (user models.User, err error){
 /// Helper Functions
 /// --------------------------------------------------------------------------------
 
-func userWithEmailExists(email string) bool {
+func userWithEmailOrPhoneExists(email string, phone string) bool {
 	ctx, cancel := context.WithTimeout(context.Background(), 10 * time.Second)
 	defer cancel()
 
 	var user models.User
+
+	filter := bson.D{{
+		Key: "$or", Value: bson.A{
+			bson.D{{Key: "email", Value: email}},
+			bson.D{{Key: "phone", Value: phone}},
+		},
+	}}
 	// check if user with phone number exists
-	err := userCollection.FindOne(ctx, bson.M{"email": email}).Decode(&user);
+	err := userCollection.FindOne(ctx, filter).Decode(&user);
 
 	return err == nil // if no error then user exists
 }

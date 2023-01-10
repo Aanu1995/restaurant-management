@@ -8,68 +8,67 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+func GetTable(ctx *gin.Context){
+	tableId := ctx.Param("tableId")
 
-func GetInvoice(ctx *gin.Context){
-	invoiceId := ctx.Param("invoiceId")
-
-	invoice, err := services.GetInvoice(invoiceId)
+	table, err := services.GetTable(tableId)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"data": invoice})
+	ctx.JSON(http.StatusOK, gin.H{"data": table})
 }
 
-func GetInvoices(ctx *gin.Context){
-	invoices, err := services.GetInvoices()
+func GetTables(ctx *gin.Context){
+	tables, err := services.GetTables()
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"data": invoices})
+	ctx.JSON(http.StatusOK, gin.H{"data": tables})
 }
 
 
-func CreateInvoice(ctx *gin.Context){
-	var invoice models.Invoice
+func CreateTable(ctx *gin.Context){
+	var table models.Table
 
-	if err := ctx.BindJSON(&invoice); err != nil {
+	if err := ctx.BindJSON(&table); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	// validate the struct
-	if err := validate.Struct(invoice); err != nil {
+	if err := validate.Struct(table); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	newInvoice, err := services.CreateInvoice(invoice)
+	newTable, err := services.CreateTable(table)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	ctx.JSON(http.StatusCreated, gin.H{"data": newInvoice})
+	ctx.JSON(http.StatusCreated, gin.H{"data": newTable})
 }
 
 
-func UpdateInvoice(ctx *gin.Context){
-	invoiceId := ctx.Param("invoiceId")
+func UpdateTable(ctx *gin.Context){
+	tableId := ctx.Param("tableId")
 
-	var invoice models.Invoice
-	if err := ctx.BindJSON(&invoice); err != nil {
+	var table models.Table
+	if err := ctx.BindJSON(&table); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	newInvoice, err := services.UpdateInvoice(invoiceId, invoice)
+	newTable, err := services.UpdateTable(tableId, table)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"data": newInvoice})
+	ctx.JSON(http.StatusOK, gin.H{"data": newTable})
 }

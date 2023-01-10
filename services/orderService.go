@@ -24,7 +24,7 @@ func GetOrder(orderId string) (order models.Order, err error){
 }
 
 func GetOrders() (orders []models.Order, err error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 10 * time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 20 * time.Second)
 	defer cancel()
 
 	result, err := orderCollection.Find(ctx, bson.D{})
@@ -70,7 +70,7 @@ func CreateOrder(requestBody models.Order) (order models.Order, err error){
 }
 
 
-func UpdateOrder(orderId string, requestBody models.Order) (food models.Order, err error){
+func UpdateOrder(orderId string, requestBody models.Order) (order models.Order, err error){
 	// check if table exists if the tableId is to be updated
 	if requestBody.TableId != nil {
 		if isTableExists := checkIfTableExists(*requestBody.TableId); !isTableExists {
@@ -100,7 +100,48 @@ func UpdateOrder(orderId string, requestBody models.Order) (food models.Order, e
 	}
 
 	// return back the updated order
-	food, err = GetOrder(orderId)
+	order, err = GetOrder(orderId)
 
 	return
+}
+
+func OrderItemOrderCreator(tableId *string) (orderId string, err error) {
+	var order models.Order
+
+	createdAt := time.Now().UTC().Format(time.RFC3339)
+
+	order.OrderDate = createdAt
+	order.TableId = tableId
+	order.CreatedAt = createdAt
+	order.UpdatedAt = createdAt
+	order.ID = primitive.NewObjectID()
+	order.OrderId = order.ID.Hex()
+
+	// validate the struct
+	if err = validate.Struct(order); err != nil {
+		return
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10 * time.Second)
+	defer cancel()
+
+	_, err = orderCollection.InsertOne(ctx, order)
+
+	orderId = order.OrderId
+	return
+}
+
+
+/// --------------------------------------------------------------------------------
+/// Helper Functions
+/// --------------------------------------------------------------------------------
+func checkIfOrderExists(orderId string) bool {
+	ctx, cancel := context.WithTimeout(context.Background(), 10 * time.Second)
+	defer cancel()
+
+	var order models.Order
+	// check if user with phone number exists
+	err := orderCollection.FindOne(ctx, bson.M{"orderId": orderId}).Decode(&order);
+
+	return err == nil // if no error then order exists
 }

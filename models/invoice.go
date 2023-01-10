@@ -13,3 +13,14 @@ type Invoice struct{
 	CreatedAt 			string								`json:"createdAt" bson:"createdAt"`
 	UpdatedAt 			string								`json:"updatedAt" bson:"updatedAt"`
 }
+
+type InvoiceViewFormat struct{
+	InvoiceId 				string					`json:"invoiceId"`
+	PaymentMethod 		string					`json:"paymentMethod"`
+	OrderId						string					`json:"orderId"`
+	PaymentStatus			*string					`json:"paymentStatus"`
+	TableNumber				interface{}			`json:"tableNumber"`
+	PaymentDue      	interface{}			`json:"paymentDue"`
+	PaymentDueDate		string					`json:"paymentDueDate"`
+	OrderDetails		 	interface{}			`json:"orderDetails"`
+}
