@@ -29,11 +29,11 @@ func GetMenus() (menus []models.Menu, err error) {
 	defer cancel()
 
 	result, err := menuCollection.Find(ctx, bson.D{})
-	defer result.Close(context.Background())
-
 	if err != nil {
 		return
 	}
+
+	defer result.Close(context.Background())
 
 	if err = result.All(context.Background(), &menus); err != nil {
 		return
@@ -75,7 +75,7 @@ func UpdateMenu(menuId string, requestBody models.Menu) (menu models.Menu, err e
 		} else if endDate, err = time.Parse(time.RFC3339, *requestBody.EndDate); err != nil{
 			return
 		} else if !(startDate.After(time.Now()) && endDate.After(startDate)){
-			err = errors.New("Invalid start date or end date")
+			err = errors.New("invalid start date or end date")
 			return
 		}
 	}

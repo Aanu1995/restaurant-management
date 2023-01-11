@@ -38,11 +38,11 @@ func GetUsers(recordPerPage int, page int) (users []models.User, err error) {
 	opts.SetLimit(int64(recordPerPage))
 
 	result, err := userCollection.Find(ctx, bson.D{}, opts)
-	defer result.Close(context.Background())
-
 	if err != nil {
 		return
 	}
+
+	defer result.Close(context.Background())
 
 	if err = result.All(context.Background(), &users); err != nil {
 		return
@@ -70,7 +70,7 @@ func CreateUser(requestBody models.User) (err error) {
 
 	// check if user with email or phone exists
 	if userExists := userWithEmailOrPhoneExists(*user.Email, *user.Phone); userExists {
-		err = errors.New("User with this email or phone already exists")
+		err = errors.New("user with this email or phone already exists")
 		return
 	}
 
@@ -106,22 +106,22 @@ func Login(requestBody models.User) (user models.User, err error){
 	// Get the data of the user with the email provided
 	user, err = GetUserWithEmail(*requestBody.Email)
 	if err != nil {
-		err = errors.New("Incorrect email or password")
+		err = errors.New("incorrect email or password")
 		return
 	}
 
 	// Verify if the user password in database is the same as the password
 	// supplied by the user
-	passwordIsValid := helpers.VerifyPassword(*user.Password, *user.Password)
+	passwordIsValid := helpers.VerifyPassword(*user.Password, *requestBody.Password)
 	if !passwordIsValid {
-		err = errors.New("Incorrect email or password")
+		err = errors.New("incorrect email or password")
 		return
 	}
 
 	// Generate and Update the user tokens in database
 	err = generateAndUpdateUserTokens(&user);
 	if err != nil {
-		log.Panic("Token generation failure")
+		err = errors.New("token generation failure")
 		return
 	}
 

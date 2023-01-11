@@ -27,11 +27,12 @@ func GetTables() (tables []models.Table, err error) {
 	defer cancel()
 
 	result, err := tableCollection.Find(ctx, bson.D{})
-	defer result.Close(context.Background())
-
 	if err != nil {
 		return
 	}
+
+
+	defer result.Close(context.Background())
 
 	if err = result.All(context.Background(), &tables); err != nil {
 		return

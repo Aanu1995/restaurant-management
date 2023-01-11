@@ -28,11 +28,11 @@ func GetOrders() (orders []models.Order, err error) {
 	defer cancel()
 
 	result, err := orderCollection.Find(ctx, bson.D{})
-	defer result.Close(context.Background())
-
 	if err != nil {
 		return
 	}
+
+	defer result.Close(context.Background())
 
 	if err = result.All(context.Background(), &orders); err != nil {
 		return
@@ -50,7 +50,7 @@ func CreateOrder(requestBody models.Order) (order models.Order, err error){
 
 	// check if the table exists
 	if isTableExists := checkIfTableExists(*requestBody.TableId); !isTableExists {
-		err = errors.New("Table not found")
+		err = errors.New("table not found")
 		return
 	}
 
@@ -74,7 +74,7 @@ func UpdateOrder(orderId string, requestBody models.Order) (order models.Order, 
 	// check if table exists if the tableId is to be updated
 	if requestBody.TableId != nil {
 		if isTableExists := checkIfTableExists(*requestBody.TableId); !isTableExists {
-			err = errors.New("Table not found")
+			err = errors.New("table not found")
 			return
 		}
 	}

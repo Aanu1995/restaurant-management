@@ -30,11 +30,11 @@ func GetOrderItems() (orderItems []models.OrderItem, err error) {
 	defer cancel()
 
 	result, err := orderItemCollection.Find(ctx, bson.D{})
-	defer result.Close(context.Background())
-
 	if err != nil {
 		return
 	}
+
+	defer result.Close(context.Background())
 
 	if err = result.All(context.Background(), &orderItems); err != nil {
 		return
@@ -209,11 +209,12 @@ func GetOrderItemsByOrderId(orderId string) (orderItems []primitive.M, err error
 		groupStage,
 		projectStage2,
 	})
-	defer result.Close(context.Background())
 
 	if err != nil {
 		return
 	}
+
+	defer result.Close(context.Background())
 
 	err = result.All(context.Background(), &orderItems)
 

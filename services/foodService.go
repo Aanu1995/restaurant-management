@@ -33,11 +33,13 @@ func GetFoods(recordPerPage int, page int) (foods []models.Food, err error) {
 	opts.SetLimit(int64(recordPerPage))
 
 	result, err := foodCollection.Find(ctx, bson.D{}, opts)
-	defer result.Close(context.Background())
-
 	if err != nil {
 		return
 	}
+
+	defer result.Close(context.Background())
+
+	
 
 	if err = result.All(context.Background(), &foods); err != nil {
 		return
@@ -55,7 +57,7 @@ func CreateFood(requestBody models.Food) (food models.Food, err error){
 
 	// check if the menu exists
 	if isMenuExists := checkIfMenuExists(*requestBody.MenuId); !isMenuExists {
-		err = errors.New("Menu not found")
+		err = errors.New("menu not found")
 		return
 	}
 
@@ -79,7 +81,7 @@ func UpdateFood(foodId string, requestBody models.Food) (food models.Food, err e
 	// check if menu exists if the menuId is to be updated
 	if requestBody.MenuId != nil {
 		if isMenuExists := checkIfMenuExists(*requestBody.MenuId); !isMenuExists {
-			err = errors.New("Menu not found")
+			err = errors.New("menu not found")
 			return
 		}
 	}

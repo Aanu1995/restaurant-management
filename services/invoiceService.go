@@ -51,11 +51,11 @@ func GetInvoices() (invoices []models.Invoice, err error) {
 	defer cancel()
 
 	result, err := invoiceCollection.Find(ctx, bson.D{})
-	defer result.Close(context.Background())
-
 	if err != nil {
 		return
 	}
+
+	defer result.Close(context.Background())
 
 	if err = result.All(context.Background(), &invoices); err != nil {
 		return
@@ -73,7 +73,7 @@ func CreateInvoice(requestBody models.Invoice) (invoice models.Invoice, err erro
 
 	// check if the order exists
 	if isOrderExists := checkIfOrderExists(requestBody.OrderId); !isOrderExists {
-		err = errors.New("Order not found")
+		err = errors.New("order not found")
 		return
 	}
 
