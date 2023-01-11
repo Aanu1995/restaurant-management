@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"errors"
+	"reflect"
 	"time"
 
 	"github.com/Aanu1995/restaurant-management/database"
@@ -38,8 +39,6 @@ func GetFoods(recordPerPage int, page int) (foods []models.Food, err error) {
 	}
 
 	defer result.Close(context.Background())
-
-	
 
 	if err = result.All(context.Background(), &foods); err != nil {
 		return
@@ -88,19 +87,19 @@ func UpdateFood(foodId string, requestBody models.Food) (food models.Food, err e
 
 	filter := bson.M{"foodId": foodId}
 	updateObj := bson.M{
-		"name":	*requestBody.Name,
-		"price": *requestBody.Price,
-		"foodImage": *requestBody.FoodImage,
-		"menuId": *requestBody.MenuId,
-		"updatedAt": time.Now().UTC().Format(time.RFC3339),
+		"name":	requestBody.Name,
+		"price": requestBody.Price,
+		"foodImage": requestBody.FoodImage,
+		"menuId": requestBody.MenuId,
 	}
-
 	// delete object is not provided in the request body
 	for k, v := range updateObj {
-		if v == nil {
+		if reflect.ValueOf(v).IsNil() {
 			delete(updateObj, k)
 		}
 	}
+	// update the date
+	updateObj["updatedAt"]= time.Now().UTC().Format(time.RFC3339)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10 * time.Second)
 	defer cancel()

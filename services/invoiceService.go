@@ -97,9 +97,8 @@ func CreateInvoice(requestBody models.Invoice) (invoice models.Invoice, err erro
 func UpdateInvoice(invoiceId string, requestBody models.Invoice) (invoiceView models.InvoiceViewFormat, err error){
 	filter := bson.M{"invoiceId": invoiceId}
 	updateObj := bson.M{
-		"paymentMethod": *requestBody.PaymentMethod,
-		"paymentStatus": *requestBody.PaymentStatus,
-		"updatedAt": time.Now().UTC().Format(time.RFC3339),
+		"paymentMethod": requestBody.PaymentMethod,
+		"paymentStatus": requestBody.PaymentStatus,
 	}
 
 	// delete object is not provided in the request body
@@ -108,6 +107,9 @@ func UpdateInvoice(invoiceId string, requestBody models.Invoice) (invoiceView mo
 			delete(updateObj, k)
 		}
 	}
+
+	// update the date
+	updateObj["updatedAt"]= time.Now().UTC().Format(time.RFC3339)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10 * time.Second)
 	defer cancel()

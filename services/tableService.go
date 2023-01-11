@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"reflect"
 	"time"
 
 	"github.com/Aanu1995/restaurant-management/database"
@@ -68,17 +69,19 @@ func UpdateTable(tableId string, requestBody models.Table) (table models.Table, 
 
 	filter := bson.M{"tableId": tableId}
 	updateObj := bson.M{
-		"numberOfGuests": *requestBody.NumberOfGuests,
-		"tableNumber": *requestBody.TableNumber,
-		"updatedAt": time.Now().UTC().Format(time.RFC3339),
+		"numberOfGuests": requestBody.NumberOfGuests,
+		"tableNumber": requestBody.TableNumber,
 	}
 
 	// delete object is not provided in the request body
 	for k, v := range updateObj {
-		if v == nil {
+		if reflect.ValueOf(v).IsNil() {
 			delete(updateObj, k)
 		}
 	}
+
+	// update the date
+	updateObj["updatedAt"]= time.Now().UTC().Format(time.RFC3339)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10 * time.Second)
 	defer cancel()

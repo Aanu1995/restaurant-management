@@ -18,7 +18,7 @@ import (
 var userCollection *mongo.Collection = database.OpenCollection("users")
 
 
-func GetUser(userId string) (user models.User, err error) {
+func GetUser(userId string) (user models.UserOnly, err error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10 * time.Second)
 	defer cancel()
 
@@ -29,7 +29,7 @@ func GetUser(userId string) (user models.User, err error) {
 	return
 }
 
-func GetUsers(recordPerPage int, page int) (users []models.User, err error) {
+func GetUsers(recordPerPage int, page int) (users []models.UserOnly, err error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 20 * time.Second)
 	defer cancel()
 
@@ -49,7 +49,7 @@ func GetUsers(recordPerPage int, page int) (users []models.User, err error) {
 	}
 
 	if users == nil {
-		users = []models.User{}
+		users = []models.UserOnly{}
 	}
 	return
 }

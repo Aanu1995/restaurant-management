@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"errors"
+	"reflect"
 	"time"
 
 	"github.com/Aanu1995/restaurant-management/database"
@@ -82,19 +83,21 @@ func UpdateMenu(menuId string, requestBody models.Menu) (menu models.Menu, err e
 
 	filter := bson.M{"menuId": menuId}
 	updateObj := bson.M{
-		"name": *requestBody.Name,
-		"category": *requestBody.Category,
-		"startDate": *requestBody.StartDate,
-		"endDate": *requestBody.EndDate,
-		"updatedAt": time.Now().UTC().Format(time.RFC3339),
+		"name": requestBody.Name,
+		"category": requestBody.Category,
+		"startDate": requestBody.StartDate,
+		"endDate": requestBody.EndDate,
 	}
 
 	// delete object is not provided in the request body
 	for k, v := range updateObj {
-		if v == nil {
+		if reflect.ValueOf(v).IsNil() {
 			delete(updateObj, k)
 		}
 	}
+
+	// update the date
+	updateObj["updatedAt"]= time.Now().UTC().Format(time.RFC3339)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10 * time.Second)
 	defer cancel()
