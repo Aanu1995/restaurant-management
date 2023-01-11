@@ -23,10 +23,6 @@ func Authenticate(ctx *gin.Context){
 		return
 	}
 
-	ctx.Set("email", claims.Email)
-	ctx.Set("firstName", claims.FirstName)
-	ctx.Set("lastName", claims.LastName)
 	ctx.Set("userId", claims.UserId)
-	ctx.Set("userType", claims.UserType)
 	ctx.Next()
 }

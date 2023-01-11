@@ -11,7 +11,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-var orderCollection = database.OpenCollection("order")
+var orderCollection = database.OpenCollection("orders")
 
 
 func GetOrder(orderId string) (order models.Order, err error){

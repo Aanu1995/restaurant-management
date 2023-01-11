@@ -12,7 +12,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-var foodCollection = database.OpenCollection("food")
+var foodCollection = database.OpenCollection("foods")
 
 
 func GetFood(foodId string) (food models.Food, err error){

@@ -12,7 +12,7 @@ import (
 )
 
 
-var menuCollection = database.OpenCollection("menu")
+var menuCollection = database.OpenCollection("menus")
 
 
 func GetMenu(menuId string) (menu models.Menu, err error){

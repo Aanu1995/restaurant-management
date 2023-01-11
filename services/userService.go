@@ -15,14 +15,14 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-var userCollection *mongo.Collection = database.OpenCollection("Users")
+var userCollection *mongo.Collection = database.OpenCollection("users")
 
 
 func GetUser(userId string) (user models.User, err error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10 * time.Second)
 	defer cancel()
 
-	result := userCollection.FindOne(ctx, bson.M{"userid": userId})
+	result := userCollection.FindOne(ctx, bson.M{"userId": userId})
 
 	err = result.Decode(&user)
 
@@ -30,7 +30,7 @@ func GetUser(userId string) (user models.User, err error) {
 }
 
 func GetUsers(recordPerPage int, page int) (users []models.User, err error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 10 * time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 20 * time.Second)
 	defer cancel()
 
 	opts := options.Find()
@@ -85,7 +85,7 @@ func CreateUser(requestBody models.User) (err error) {
 	user.UserId = user.ID.Hex()
 
 	// get access and refresh token
-	accessToken, refreshToken, err := helpers.GenerateTokens(user);
+	accessToken, refreshToken, err := helpers.GenerateTokens(user.UserId);
 	if err != nil {
 		log.Panic("Token generation failure")
 		return
@@ -129,6 +129,30 @@ func Login(requestBody models.User) (user models.User, err error){
 }
 
 
+func RefreshToken(refreshToken string) (token models.Token, err error){
+	claims, err := helpers.ValidateRefreshToken(refreshToken)
+	if err != nil {
+		return
+	}
+
+	user := models.User{
+		UserId: claims.UserId,
+	}
+
+	// Generate and Update the user tokens in database
+	err = generateAndUpdateUserTokens(&user);
+	if err != nil {
+		log.Panic("Token generation failure")
+		return
+	}
+
+	token = models.Token{
+		AccessToken: *user.AccessToken,
+		RefreshToken: *user.RefreshToken,
+	}
+	return
+}
+
 
 /// --------------------------------------------------------------------------------
 /// Helper Functions
@@ -152,19 +176,8 @@ func userWithEmailOrPhoneExists(email string, phone string) bool {
 	return err == nil // if no error then user exists
 }
 
-func userWithPhoneExists(phone string) bool {
-	ctx, cancel := context.WithTimeout(context.Background(), 10 * time.Second)
-	defer cancel()
-
-	var user models.User
-	// check if user with phone number exists
-	err := userCollection.FindOne(ctx, bson.M{"phone": phone}).Decode(&user);
-
-	return err == nil // if no error then user exists
-}
-
 func generateAndUpdateUserTokens(user *models.User) (err error) {
-	accessToken, refreshToken, err := helpers.GenerateTokens(*user);
+	accessToken, refreshToken, err := helpers.GenerateTokens(user.UserId);
 	if err != nil {
 		return
 	}
@@ -173,8 +186,8 @@ func generateAndUpdateUserTokens(user *models.User) (err error) {
 	defer cancel()
 
 	updatedAt := time.Now().UTC().Format(time.RFC3339)
-	update := bson.M{"$set": bson.M{"accesstoken": accessToken, "refreshtoken": refreshToken, "updatedat":updatedAt}}
-	_, err = userCollection.UpdateOne(ctx, bson.M{"userid": user.UserId}, update)
+	update := bson.M{"$set": bson.M{"accessToken": accessToken, "refreshToken": refreshToken, "updatedAt":updatedAt}}
+	_, err = userCollection.UpdateOne(ctx, bson.M{"userId": user.UserId}, update)
 	if err != nil {
 		return
 	}

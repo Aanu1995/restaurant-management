@@ -17,3 +17,9 @@ type User struct {
 	CreatedAt 			string							`json:"createdAt" bson:"createdAt"`
 	UpdatedAt 			string							`json:"updatedAt" bson:"updatedAt"`
 }
+
+
+type Token struct {
+	AccessToken 		string							`json:"accessToken" bson:"accessToken"`
+	RefreshToken 		string							`json:"refreshToken" bson:"refreshToken"`
+}

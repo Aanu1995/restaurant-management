@@ -10,7 +10,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-var tableCollection = database.OpenCollection("table")
+var tableCollection = database.OpenCollection("tables")
 
 
 func GetTable(tableId string) (table models.Table, err error){

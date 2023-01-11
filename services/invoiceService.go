@@ -11,7 +11,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-var invoiceCollection = database.OpenCollection("invoice")
+var invoiceCollection = database.OpenCollection("invoices")
 
 
 func GetInvoice(invoiceId string) (invoiceView models.InvoiceViewFormat, err error){
@@ -19,8 +19,7 @@ func GetInvoice(invoiceId string) (invoiceView models.InvoiceViewFormat, err err
 	defer cancel()
 
 	var invoice models.Invoice
-	err = invoiceCollection.FindOne(ctx, bson.M{"invoiceId": invoiceId}).Decode(&invoice)
-	if err != nil{
+	if err = invoiceCollection.FindOne(ctx, bson.M{"invoiceId": invoiceId}).Decode(&invoice); err != nil{
 		return
 	}
 

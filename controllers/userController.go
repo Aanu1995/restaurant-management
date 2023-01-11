@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/Aanu1995/restaurant-management/helpers"
 	"github.com/Aanu1995/restaurant-management/models"
 	"github.com/Aanu1995/restaurant-management/services"
 	"github.com/gin-gonic/gin"
@@ -45,7 +44,6 @@ func Login(ctx *gin.Context){
 		return
 	}
 
-	// create user account
 	newUser, err := services.Login(user)
 
 	if err != nil {
@@ -58,11 +56,6 @@ func Login(ctx *gin.Context){
 
 
 func GetUsers(ctx *gin.Context){
-	if err := helpers.CheckUserType(ctx, "ADMIN"); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
 	recordPerPage, err := strconv.Atoi(ctx.Query("recordPerPage"))
 	if err != nil || recordPerPage < 1 {
 		recordPerPage = 20
@@ -87,11 +80,6 @@ func GetUsers(ctx *gin.Context){
 func GetUser(ctx *gin.Context){
 	userId := ctx.Param("userId")
 
-	if err := helpers.MatchUserTypeToUserID(ctx, userId); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error":  err.Error()})
-		return
-	}
-
 	// get user with userId
 	user, err := services.GetUser(userId)
 	if err != nil {
@@ -100,4 +88,16 @@ func GetUser(ctx *gin.Context){
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{"data": user})
+}
+
+func RefreshToken(ctx *gin.Context){
+	refreshToken := ctx.Query("refreshToken")
+
+	token, err := services.RefreshToken(refreshToken)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"data": token})
 }
